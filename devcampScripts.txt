@@ -1,0 +1,86 @@
+//These are my scripts besides creating the tables. 
+//My MySQL Workbench has been crashing and deleted all my schemas.
+//I can redo this assignment if need be,
+//But basically I had a students table, a class table with a table of professors as a column,
+//And a "grades" table that was a junction table for each student and class they were in.
+
+
+
+
+//inserting the grades junction table
+
+SELECT @var;
+
+INSERT INTO grades(grades_student_id, grades_course_id, grade)
+VALUES (@var , 2, ((RAND()*(4-0+1))+0) );
+INSERT INTO grades(grades_student_id, grades_course_id, grade)
+VALUES (@var , 3, ((RAND()*(4-0+1))+0) );
+INSERT INTO grades(grades_student_id, grades_course_id, grade)
+VALUES (@var , 4, ((RAND()*(4-0+1))+0) );
+INSERT INTO grades(grades_student_id, grades_course_id, grade)
+VALUES (@var , 5, ((RAND()*(4-0+1))+0) );
+INSERT INTO grades(grades_student_id, grades_course_id, grade)
+VALUES (@var, 7, ((RAND()*(4-0+1))+0) );
+
+SET @var = @var + 1;
+
+
+
+//avg grade given by each professor
+SELECT p.professors_name, AVG(grade)
+FROM professors p
+INNER JOIN courses c
+ON c.courses_professor_id = p.professors_id
+INNER JOIN grades g
+ON  g.grades_course_id = c.courses_id
+GROUP BY p.professors_id;
+
+
+
+
+//showing top grades for each student
+SELECT grades.grades_student_id, students.students_name, MAX(grades.grade)
+FROM grades
+INNER JOIN students
+ON students.students_id = grades.grades_student_id
+GROUP BY grades_student_id;
+
+
+
+// group students by courses they're enrolled in
+SELECT c.courses_id, c.courses_name, s.students_name
+FROM students s
+LEFT JOIN grades g
+ON g.grades_student_id = s.students_id
+LEFT JOIN courses c
+ON c.courses_id = g.grades_course_id
+ORDER BY c.courses_id;
+
+
+
+//create summary report of courses and avaerage grades
+SELECT c.courses_id, c.courses_name, AVG(grade) as average_grades
+FROM courses c
+INNER JOIN grades g
+ON g.grades_course_id = c.courses_id
+GROUP BY c.courses_id
+ORDER BY average_grades ASC;
+
+//find which student & prof have most courses in common
+SELECT students_name AS "Student Name",
+professors_name AS "Professor",
+COUNT(professors_id) AS numberForProf
+FROM grades g
+INNER JOIN students s
+ON s.students_id = g.grades_student_id
+INNER JOIN courses c
+ON c.courses_id = g.grades_course_id
+INNER JOIN professors p
+ON p.professors_id = c.courses_professor_id
+GROUP BY professors_name, students_name
+ORDER BY numberForProf DESC;
+
+
+
+
+
